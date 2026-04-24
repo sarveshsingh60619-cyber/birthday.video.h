@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Special Surprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    body { margin:0; background:#ffe0e9; font-family:'Poppins',sans-serif; overflow:hidden; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+    .screen { display:none; text-align:center; width:90%; max-width:400px; animation: fadeIn 0.8s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Centered Rotating Image */
+    .img-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+    .spin { animation: spin 4s infinite linear; max-width: 150px; display: block; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Motion Emojis */
+    .bounce { animation: bounce 1s infinite alternate; font-size: 50px; display: inline-block; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-20px); } }
+
+    /* Countdown Styling */
+    #countdownText { font-size: 80px; color: #f78da7; font-weight: bold; }
+
+    /* Reel / Slideshow */
+    .reel-photo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s; }
+    .active-slide { opacity: 1; }
+
+    /* Sprinkles */
+    .particle { position: absolute; width: 10px; height: 10px; border-radius: 50%; pointer-events: none; z-index: 999; }
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop><source src="birthday-song.mp3" type="audio/mpeg"></audio>
+
+<div id="screen0" class="screen" style="display:block;">
+    <div id="countdownText">3</div>
+    <p style="color:#f78da7; letter-spacing: 2px;">GET READY...</p>
+</div>
+
+<div id="screen1" class="screen">
+    <div class="img-container">
+        <img src="hellokitty.png" class="spin">
+    </div>
+    <h1 style="color:#f78da7; font-size:24px; margin-bottom: 10px;"><b>LOADING YOUR BIRTHDAY SURPRISE...</b></h1>
+    <div class="bounce">💖✨🎈</div>
+    <br><br>
+    <button onclick="startExperience()" style="background:#f78da7; color:white; border:none; padding:15px 35px; border-radius:30px; cursor:pointer; font-weight:bold; box-shadow: 0 4px 10px rgba(247,141,167,0.4);">OPEN THE MAGIC</button>
+</div>
+
+<div id="screen2" class="screen">
+    <h1 style="color:#f78da7; font-family:'Dancing Script',cursive; font-size:38px;">My girl was born 20 years ago today! 👑</h1>
+    <div class="bounce" style="font-size: 60px;">🌸</div>
+    <br>
+    <button onclick="showScreen(3)" style="margin-top:20px; background:#f78da7; color:white; border:none; padding:12px 25px; border-radius:20px; cursor:pointer;">Next ➜</button>
+</div>
+
+<div id="screen3" class="screen">
+    <h1 id="cakeHeader" style="color:#f78da7; font-family:'Dancing Script',cursive; font-size: 28px;">Swipe anywhere to cut the cake! 🎂</h1>
+    <div id="cake-wrapper" style="position:relative; cursor:crosshair; touch-action:none;" onmousedown="handleStart()" onmousemove="handleMove(event)" ontouchstart="handleStart()" ontouchmove="handleMove(event)">
+        <img id="cakeMain" src="cake-bear.gif" style="max-width:220px; transition: 0.5s; border-radius: 20px;">
+    </div>
+    <h2 id="hbdText" style="color:#f78da7; font-family:'Dancing Script',cursive; display:none; font-size: 35px; animation: bounce 0.8s infinite alternate;">Happy Birthday my girl! 🎉</h2>
+    <button id="toPhotos" onclick="showScreen(4)" style="display:none; background:#f78da7; color:white; border:none; padding:12px 25px; border-radius:20px; margin-top:20px; cursor:pointer;">See our moments ➜</button>
+</div>
+
+<div id="screen4" class="screen">
+    <h1 style="color:#f78da7; font-family:'Dancing Script',cursive;">Sweet Moments</h1>
+    <div style="position:relative; width:280px; height:400px; margin:20px auto; overflow:hidden; border-radius:20px; border:5px solid white; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
+        <img src="photo1.jpg" class="reel-photo active-slide">
+        <img src="photo2.jpg" class="reel-photo">
+        <img src="photo3.jpg" class="reel-photo">
+    </div>
+    <button onclick="showScreen(5)" style="background:#f78da7; color:white; border:none; padding:12px 25px; border-radius:20px; cursor:pointer;">💌 Read my message</button>
+</div>
+
+<div id="screen5" class="screen" style="background:white; padding:30px; border-radius:25px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+    <h1 style="color:#f78da7; font-family:'Dancing Script',cursive;">To My Favorite Person 💖</h1>
+    <p style="line-height:1.8; color:#444;">
+        Happy Birthday, gorgeous! Another year older, but still looking as fabulous as ever.<br><br>
+        I hope your day is full of happiness, laughter and lots of cake 🎂✨<br><br>
+        You truly deserve all the best things in life. Thank you for being amazing.
+    </p>
+    <p style="margin-top:20px; font-weight:bold; font-style:italic; color: #333;">With love and confetti,<br>Sarvesh 💖🎉</p>
+</div>
+
+<script>
+    let isCutting = false;
+    let cutDone = false;
+
+    // 1. Countdown Logic
+    let count = 3;
+    const timer = setInterval(() => {
+        count--;
+        if(count >= 0) {
+            document.getElementById('countdownText').innerText = count;
+        } else {
+            clearInterval(timer);
+            showScreen(1);
+        }
+    }, 1000);
+
+    function showScreen(num) {
+        document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+        document.getElementById('screen' + num).style.display = 'block';
+        if(num === 4) startReel();
+    }
+
+    function startExperience() {
+        document.getElementById('bgMusic').play();
+        showScreen(2);
+    }
+
+    // 2. Sprinkle Logic (Bursting Everywhere)
+    function handleStart() { isCutting = true; }
+    function handleMove(e) {
+        if(!isCutting || cutDone) return;
+        
+        // Spawn sprinkles at cursor AND randomly across screen
+        createSprinkle(e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY);
+        if (Math.random() > 0.7) {
+            createSprinkle(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+        }
+
+        setTimeout(() => {
+            if(!cutDone) {
+                cutDone = true;
+                document.getElementById('cakeHeader').style.display = 'none';
+                document.getElementById('hbdText').style.display = 'block';
+                document.getElementById('toPhotos').style.display = 'inline-block';
+                document.getElementById('cakeMain').style.transform = "scale(1.15) rotate(5deg)";
+                // Final explosion of sprinkles
+                for(let i=0; i<50; i++) {
+                    setTimeout(() => createSprinkle(Math.random()*window.innerWidth, Math.random()*window.innerHeight), i*20);
+                }
+            }
+        }, 1800);
+    }
+
+    function createSprinkle(x, y) {
+        const colors = ['#FF69B4', '#FFD700', '#00BFFF', '#ADFF2F', '#FF4500', '#FF00FF'];
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        document.body.appendChild(p);
+        
+        const destinationY = window.innerHeight + 100;
+        const destinationX = x + (Math.random() - 0.5) * 300;
+
+        const anim = p.animate([
+            { transform: 'translate(0,0) scale(1)', opacity: 1 },
+            { transform: `translate(${destinationX - x}px, ${destinationY - y}px) scale(0.5)`, opacity: 0 }
+        ], { duration: 1500 + Math.random()*1000, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' });
+        
+        anim.onfinish = () => p.remove();
+    }
+
+    // 3. Photo Reel Logic
+    function startReel() {
+        const slides = document.querySelectorAll('.reel-photo');
+        let current = 0;
+        if(window.reelTimer) clearInterval(window.reelTimer);
+        window.reelTimer = setInterval(() => {
+            slides[current].classList.remove('active-slide');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('active-slide');
+        }, 3000);
+    }
+</script>
+</body>
+</html>
